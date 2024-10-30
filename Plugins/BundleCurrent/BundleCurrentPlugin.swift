@@ -82,7 +82,7 @@ func generateBundleExtensionSwift(packageName: String, targetName: String) -> St
                 return bundle
             }
         }
-        fatalError("unable to find bundle named \(bundleName)")
+        fatalError("unable to find bundle named \(packageName)_\(targetName)")
     }()
   }
 
