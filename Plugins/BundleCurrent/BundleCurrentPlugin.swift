@@ -64,38 +64,26 @@ func generateBundleExtensionSwift(packageName: String, targetName: String) -> St
   private class BundleFinder {}
 
   extension Foundation.Bundle {
-  /// Returns the resource bundle associated with the current Swift module.
-  static var current: Bundle = {
-      let bundleName = "\(packageName)_\(targetName)"
-
-      var candidates = [
-          // Bundle should be present here when the package is linked into an App.
-          Bundle.main.resourceURL,
-
-          // Bundle should be present here when the package is linked into a framework.
-          Bundle(for: BundleFinder.self).resourceURL,
-
-          // For command-line tools.
-          Bundle.main.bundleURL,
-      ]
-
-      // FIX FOR PREVIEWS
-      if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
-          candidates.append(contentsOf: [
-              // Bundle should be present here when running previews from a different package
-              Bundle(for: BundleFinder.self).resourceURL?.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent(),
-              Bundle(for: BundleFinder.self).resourceURL?.deletingLastPathComponent().deletingLastPathComponent()
-          ])
-      }
-
-      for candidate in candidates {
-          let bundlePath = candidate?.appendingPathComponent(bundleName + ".bundle")
-          if let bundle = bundlePath.flatMap(Bundle.init(url:)) {
-              return bundle
-          }
-      }
-      fatalError("unable to find bundle named \(packageName)_\(targetName)")
-  }()
+    static var myModule: Bundle = {
+        let bundleName = "\(packageName)_\(targetName)"
+        let candidates = [
+            /* Bundle should be present here when the package is linked into an App. */
+            Bundle.main.resourceURL,
+            /* Bundle should be present here when the package is linked into a framework. */
+            Bundle(for: CurrentBundleFinder.self).resourceURL,
+            /* For command-line tools. */
+            Bundle.main.bundleURL,
+            /* Bundle should be present here when running previews from a different package (this is the path to "…/Debug-iphonesimulator/"). */
+            Bundle(for: CurrentBundleFinder.self).resourceURL?.deletingLastPathComponent().deletingLastPathComponent(),
+        ]
+        for candidate in candidates {
+            let bundlePath = candidate?.appendingPathComponent(bundleName + ".bundle")
+            if let bundle = bundlePath.flatMap(Bundle.init(url:)) {
+                return bundle
+            }
+        }
+        fatalError("unable to find bundle named \(bundleName)")
+    }()
   }
 
   """
