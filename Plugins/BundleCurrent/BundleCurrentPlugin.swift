@@ -64,7 +64,7 @@ func generateBundleExtensionSwift(packageName: String, targetName: String) -> St
   private class BundleFinder {}
 
   extension Foundation.Bundle {
-    static var myModule: Bundle = {
+    static var current: Bundle = {
         let bundleName = "\(packageName)_\(targetName)"
         let candidates = [
             /* Bundle should be present here when the package is linked into an App. */
